@@ -2,7 +2,7 @@ import numpy as np
 from keras.applications.resnet50 import ResNet50
 from keras.applications.inception_v3 import InceptionV3
 from keras.layers import Conv2D, MaxPooling2D, Dense, Flatten, Dropout, GlobalAveragePooling2D
-from keras.models import Sequential, Model
+from keras.models import Sequential, Model, load_model
 from keras.optimizers import Adam
 import pandas as pd
 
@@ -22,14 +22,9 @@ im_size = 180
 num_cpus = cpu_count()
 num_classes = 5270  # This will reduce the max accuracy to about 0.75
 
-#model = ResNet50(classes=num_classes)
-base_model = InceptionV3(weights='imagenet', include_top=False, input_shape=(180,180,3))
-x = base_model.output
-x = GlobalAveragePooling2D(name='avg_pool')(x)
-predictions = Dense(num_classes, activation='softmax')(x)
-model = Model(inputs=base_model.input, outputs=predictions)
 
-print("Model setup completed")
+model = load_model('epoch1.h5')
+print("Model load completed")
 model.summary()
 
 
