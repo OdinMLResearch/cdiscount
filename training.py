@@ -20,7 +20,7 @@ num_image_total = 176
 #num_image_batch = 100
 im_size = 180
 num_cpus = cpu_count()
-num_classes = 5270  # This will reduce the max accuracy to about 0.75
+num_classes = 1000  # This will reduce the max accuracy to about 0.75
 
 #model = ResNet50(classes=num_classes)
 base_model = InceptionV3(weights='imagenet', include_top=False, input_shape=(180,180,3))
@@ -39,9 +39,6 @@ for layer in base_model.layers:
 print("Model setup completed")
 model.summary()
 
-import sys
-sys.exit(0)
-
 def imread(buf):
     return cv2.imdecode(np.frombuffer(buf, np.uint8), cv2.IMREAD_ANYCOLOR)
 
@@ -58,7 +55,8 @@ def load_image(pic, target):
 f = open('/datadrive/Cdiscount/train.bson', 'rb')
 bson_data_iter = bson.decode_file_iter(f)
 
-with open("category2id.json", "r") as category2id_file:
+
+with open("category2id1000.json", "r") as category2id_file:
     category2id = json.load(category2id_file)
 
 def load_next_batch():
@@ -73,13 +71,14 @@ def load_next_batch():
             try:
                 for c, d in enumerate(bson_data_iter):
                     target = d['category_id']
+                    i = i + 1
+                    if i >= num_image_batch:
+                        raise IndexError()
+                    if not str(target) in category2id:
+                        continue
                     pic = d['imgs'][0]
                     delayed_load.append(executor.submit(load_image, pic['picture'], target))
                         
-                    i = i + 1
-
-                    if i >= num_image_batch:
-                        raise IndexError()
 
             except IndexError:
                 pass;
@@ -90,6 +89,7 @@ def load_next_batch():
                 X[i] = x
                 y.append(target)
 
+        X = X[:len(y)]
         print("Shape of X and y\n")
         print(X.shape, len(y))
 
