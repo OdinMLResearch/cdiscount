@@ -23,8 +23,14 @@ num_cpus = cpu_count()
 num_classes = 5270  # This will reduce the max accuracy to about 0.75
 
 
-model = load_model('epoch1.h5')
+model = load_model('fix_inception.h5')
 print("Model load completed")
+model.summary()
+
+for layer in model.layers:
+    layer.trainable = True
+
+print("Make Model trainable")
 model.summary()
 
 
@@ -123,7 +129,7 @@ for i in range(num_image_total):
         print("========= Start batch %s ===========" % i)
         X, y = load_next_batch()
         start_time = datetime.now()
-        model.fit(X, y, validation_split=0.1, epochs=1, shuffle=True)
+        model.fit(X, y, batch_size=64, validation_split=0.1, epochs=1, shuffle=True)
         #loss = model.train_on_batch(X, y)
         end_time = datetime.now()
         print("start_time for batch %s is %s and end_time is %s" % (i, start_time, end_time))

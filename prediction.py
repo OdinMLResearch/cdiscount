@@ -23,7 +23,7 @@ im_size = 180
 num_cpus = cpu_count()
 num_classes = 5270  # This will reduce the max accuracy to about 0.75
 
-model = load_model('/datadrive/result/inceptionv3_60.h5')
+model = load_model('epoch2.h5')
 
 print("Model load completed")
 model.summary()

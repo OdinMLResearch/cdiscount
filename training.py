@@ -29,9 +29,18 @@ x = GlobalAveragePooling2D(name='avg_pool')(x)
 predictions = Dense(num_classes, activation='softmax')(x)
 model = Model(inputs=base_model.input, outputs=predictions)
 
+
 print("Model setup completed")
 model.summary()
 
+for layer in base_model.layers:
+    layer.trainable = False
+
+print("Model setup completed")
+model.summary()
+
+import sys
+sys.exit(0)
 
 def imread(buf):
     return cv2.imdecode(np.frombuffer(buf, np.uint8), cv2.IMREAD_ANYCOLOR)
@@ -128,7 +137,7 @@ for i in range(num_image_total):
         print("========= Start batch %s ===========" % i)
         X, y = load_next_batch()
         start_time = datetime.now()
-        model.fit(X, y, validation_split=0.1, epochs=1, shuffle=True)
+        model.fit(X, y, batch_size=64, validation_split=0.1, epochs=1, shuffle=True)
         #loss = model.train_on_batch(X, y)
         end_time = datetime.now()
         print("start_time for batch %s is %s and end_time is %s" % (i, start_time, end_time))
